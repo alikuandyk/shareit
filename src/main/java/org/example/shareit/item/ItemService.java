@@ -56,6 +56,7 @@ public class ItemService {
     }
 
     public List<Item> findByText(String text) {
+
         return itemRepository.findByText(text);
     }
 

@@ -52,10 +52,11 @@ public class ItemController {
         return itemMapper.toResponse(item);
     }
 
-    // TODO: переделать под респонсДТО
     @GetMapping("/search")
-    public List<Item> findByText(@RequestParam String text) {
-        return itemService.findByText(text);
+    public List<ItemResponseDto> findByText(@RequestParam String text) {
+        return itemService.findByText(text).stream()
+                .map(itemMapper::toResponse)
+                .toList();
     }
 
     @DeleteMapping("/{itemId}")
