@@ -3,6 +3,8 @@ package org.example.shareit.item.dto;
 import org.example.shareit.item.Item;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
+
 @Component
 public class ItemMapper {
     public Item fromCreate(ItemCreateDto itemCreate) {
@@ -28,6 +30,12 @@ public class ItemMapper {
         response.setDescription(item.getDescription());
         response.setAvailable(item.getAvailable());
         return response;
+    }
+
+    public List<ItemResponseDto> toResponse(List<Item> items) {
+        return items.stream()
+                .map(this::toResponse)
+                .toList();
     }
 
     public void merge(Item existingItem, Item updatedItem) {
