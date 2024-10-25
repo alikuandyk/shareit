@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Repository;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Optional;
+import java.util.*;
 
 @Repository
 @RequiredArgsConstructor
@@ -44,7 +41,12 @@ public class ItemRepositoryImpl implements ItemRepository {
 
     @Override
     public List<Item> findByText(String text) {
+        if (StringUtils.isBlank(text)) {
+            return Collections.emptyList();
+        }
+
         return itemMap.values().stream()
+                .filter(Item::getAvailable)
                 .filter(item -> StringUtils.containsAnyIgnoreCase(item.getName(), text)
                         || StringUtils.containsAnyIgnoreCase(item.getDescription(), text))
                 .toList();

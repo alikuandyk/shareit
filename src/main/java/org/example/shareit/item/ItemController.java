@@ -10,6 +10,8 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 
+import static org.example.shareit.utils.RequestConstants.USER_HEADER;
+
 @RequestMapping("/items")
 @RestController
 @RequiredArgsConstructor
@@ -19,7 +21,7 @@ public class ItemController {
 
     @PostMapping
     public ItemResponseDto create(
-            @RequestHeader("X-Sharer-User-Id") int userId,
+            @RequestHeader(USER_HEADER) int userId,
             @Valid @RequestBody ItemCreateDto itemCreateDto
             ) {
         Item item = itemMapper.fromCreate(itemCreateDto);
@@ -28,7 +30,7 @@ public class ItemController {
 
     @PatchMapping("/{id}")
     public ItemResponseDto update(
-            @RequestHeader("X-Sharer-User-Id") int userId,
+            @RequestHeader(USER_HEADER) int userId,
             @PathVariable int id,
             @Valid @RequestBody ItemUpdateDto itemUpdate
             ) {
@@ -37,13 +39,8 @@ public class ItemController {
     }
 
     @GetMapping
-    public List<ItemResponseDto> findAll(@RequestHeader("X-Sharer-User-Id") int userId) {
-        List<ItemResponseDto> itemResponseDtos =
-                itemService.findAll(userId).stream()
-                        .map(itemMapper::toResponse)
-                        .toList();
-
-        return itemResponseDtos;
+    public List<ItemResponseDto> findAll(@RequestHeader(USER_HEADER) int userId) {
+        return itemMapper.toResponse(itemService.findAll(userId));
     }
 
     @GetMapping("/{itemId}")
@@ -52,10 +49,9 @@ public class ItemController {
         return itemMapper.toResponse(item);
     }
 
-    // TODO: переделать под респонсДТО
     @GetMapping("/search")
-    public List<Item> findByText(@RequestParam String text) {
-        return itemService.findByText(text);
+    public List<ItemResponseDto> findByText(@RequestParam String text) {
+        return itemMapper.toResponse(itemService.findByText(text));
     }
 
     @DeleteMapping("/{itemId}")
