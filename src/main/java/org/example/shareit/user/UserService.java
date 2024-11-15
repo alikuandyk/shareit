@@ -20,7 +20,7 @@ public class UserService {
             throw new UserAlreadyExistException("Пользователь с такой почтой уже существует");
         }
 
-        return userRepository.create(user);
+        return userRepository.save(user);
     }
 
     public User update(User updatedUser, int userId) {
@@ -35,7 +35,7 @@ public class UserService {
         User existingUser = userRepository.findById(userId).orElseThrow();
         userMapper.merge(existingUser, updatedUser);
 
-        return userRepository.update(existingUser, userId);
+        return userRepository.save(existingUser);
     }
 
     public List<User> findAll() {

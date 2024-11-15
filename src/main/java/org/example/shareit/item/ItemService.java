@@ -1,12 +1,17 @@
 package org.example.shareit.item;
 
 import lombok.RequiredArgsConstructor;
+import org.example.shareit.booking.Booking;
+import org.example.shareit.booking.BookingRepository;
+import org.example.shareit.booking.BookingStatus;
 import org.example.shareit.exception.*;
 import org.example.shareit.item.dto.ItemMapper;
 import org.example.shareit.user.User;
 import org.example.shareit.user.UserRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -16,6 +21,8 @@ public class ItemService {
     private final ItemMapper itemMapper;
     private final UserRepository userRepository;
     private final ItemRepository itemRepository;
+    private final CommentRepository commentRepository;
+    private final BookingRepository bookingRepository;
 
     public Item create(Item item, int userId) {
         Optional<User> optionalUser = userRepository.findById(userId);
@@ -24,7 +31,7 @@ public class ItemService {
         }
 
         item.setOwner(optionalUser.get());
-        return itemRepository.create(item);
+        return itemRepository.save(item);
     }
 
     public Item update(int userId, Item updatedItem, int itemId) {
@@ -43,12 +50,11 @@ public class ItemService {
 
         itemMapper.merge(existingitem, updatedItem);
 
-        return itemRepository.update(existingitem, itemId);
+        return itemRepository.save(existingitem);
     }
 
     public List<Item> findAll(int userId) {
-        List<Item> items = itemRepository.findAll(userId);
-        return items;
+        return itemRepository.findAllByOwner_Id(userId);
     }
 
     public Item findById(int itemId) {
@@ -56,7 +62,9 @@ public class ItemService {
     }
 
     public List<Item> findByText(String text) {
-
+        if (text.isBlank()) {
+            return Collections.emptyList();
+        }
         return itemRepository.findByText(text);
     }
 
@@ -64,4 +72,20 @@ public class ItemService {
         itemRepository.deleteById(itemId);
     }
 
+    public Comment create(int userId, int itemId, Comment comment) {
+        Optional<Item> optionalItem = itemRepository.findById(itemId);
+        if (optionalItem.isEmpty()) {
+            throw new NotFoundException("Товар с такой ID не найден");
+        }
+
+        List<Booking> bookings = bookingRepository.findAllByItemIdAndBookerIdAndStartDateBeforeAndStatusIs(itemId, userId, LocalDateTime.now(), BookingStatus.APPROVED);
+        if (bookings.isEmpty()) {
+            throw new BadRequestException("Комментария не создан, не найден бронь");
+        }
+        comment.setItem(optionalItem.orElseThrow());
+        comment.setCreated(LocalDateTime.now());
+        comment.setAuthor(userRepository.findById(userId).orElseThrow());
+
+        return commentRepository.save(comment);
+    }
 }

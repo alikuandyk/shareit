@@ -2,10 +2,7 @@ package org.example.shareit.item;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.example.shareit.item.dto.ItemCreateDto;
-import org.example.shareit.item.dto.ItemMapper;
-import org.example.shareit.item.dto.ItemResponseDto;
-import org.example.shareit.item.dto.ItemUpdateDto;
+import org.example.shareit.item.dto.*;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -57,5 +54,14 @@ public class ItemController {
     @DeleteMapping("/{itemId}")
     public void deleteById(@PathVariable int itemId) {
         itemService.deleteById(itemId);
+    }
+
+    @PostMapping("/{itemId}/comment")
+    public CommentResponseDto create(
+            @RequestHeader(USER_HEADER) int userId,
+            @PathVariable int itemId, @RequestBody CommentCreateDto create) {
+
+        Comment comment = itemService.create(userId, itemId, itemMapper.fromCreate(create));
+        return itemMapper.toResponse(comment);
     }
 }

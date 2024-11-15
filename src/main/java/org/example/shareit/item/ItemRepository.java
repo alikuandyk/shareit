@@ -1,18 +1,16 @@
 package org.example.shareit.item;
 
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
+
 import java.util.List;
-import java.util.Optional;
 
-public interface ItemRepository {
-    Item create(Item item);
-
-    Item update(Item updatedItem, int itemId);
-
-    List<Item> findAll(int userId);
-
-    Optional<Item> findById(int itemId);
-
+public interface ItemRepository extends JpaRepository<Item, Integer> {
+    @Query("select i from Item i " +
+            "where (upper(i.name) like upper(concat('%', :text, '%')) " +
+            "or upper(i.description) like upper(concat('%', :text, '%')) )" +
+            "and i.isAvailable = true ")
     List<Item> findByText(String text);
 
-    void deleteById(int itemId);
+    List<Item> findAllByOwner_Id(int userId);
 }

@@ -17,14 +17,14 @@ public class UserController {
     private final UserService userService;
     private final UserMapper userMapper;
 
-    //    POST    /users - создание пользователя
     @PostMapping
-    public UserResponseDto create(@Valid @RequestBody UserCreateDto userCreate) {
+    public UserResponseDto create(
+            @Valid @RequestBody UserCreateDto userCreate
+    ) {
         User user = userMapper.fromCreate(userCreate);
         return userMapper.toResponse(userService.create(user));
     }
 
-    //    PATCH   /users/{id} - обновление пользователя по id
     @PatchMapping("/{id}")
     public UserResponseDto update(
             @PathVariable int id,
@@ -55,7 +55,4 @@ public class UserController {
     public void deleteById(@PathVariable int userId) {
         userService.deleteById(userId);
     }
-    //    GET     /users - получения всех пользователей
-    //    GET     /users/{id} - получения пользователя по id
-    //    DELETE  /users/{id} - удаления пользователя по id
 }
